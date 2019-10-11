@@ -1,0 +1,29 @@
+{
+  "name": "projetointegradorapi",
+  "version": "1.0.0",
+  "description": "Api para o Projeto Integrador",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --exec babel-node ./src/index.js",
+    "test": "dev"
+  },
+  "keywords": [
+    "API",
+    "PROJETO"
+  ],
+  "author": "Clayton Inácio",
+  "license": "ISC",
+  "dependencies": {
+    "babel": "^6.23.0",
+    "express": "^4.17.1",
+    "mysql2": "^1.7.0",
+    "sequelize": "^5.19.6"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015": "^6.24.1",
+    "nodemon": "^1.19.3",
+    "sequelize-cli": "^5.5.1"
+  }
+}
