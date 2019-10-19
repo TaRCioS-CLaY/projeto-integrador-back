@@ -1,12 +1,14 @@
 {
   "development": {
     "username": "root",
-    "password": null,
-    "database": "database_development",
-    "host": "127.0.0.1",
+    "password": "root",
+    "database": "projeto_integrador",
+    "host": "localhost",
     "dialect": "mysql",
+    "define": {"timestamp": false},
     "operatorsAliases": false
   },
+  
   "test": {
     "username": "root",
     "password": null,
@@ -17,10 +19,11 @@
   },
   "production": {
     "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
+    "password": "maximus",
+    "database": "projeto_integrador",
+    "host": "34.95.213.167",
     "dialect": "mysql",
+    "define": {"timestamp": false},
     "operatorsAliases": false
   }
 }
