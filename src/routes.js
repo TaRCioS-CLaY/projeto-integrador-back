@@ -16,13 +16,13 @@ const Procedimento = modelos.procedimento;
 const routes = express.Router();
 
 
-// Busca os demonstrativos.
-routes.get('/demonstrativos', async (req, res) => {
+// Busca os despesas.
+routes.get('/despesas', async (req, res) => {
     if (!req.query.id) {
-        return res.json(await getAllDemonstrativos());
+        return res.json(await getAllDespesas());
     }
     console.log('Request Id:', req.query.id);
-    return res.json(await getDemonstrativosById(req.query.id));
+    return res.json(await getDespesasById(req.query.id));
 });
 
 // Busca todos os beneficiários.
@@ -31,8 +31,11 @@ routes.get('/beneficiarios', async (req, res) => res.json(await Beneficiario.fin
 })));
 
 
-// Função para executar a query que traz todos os demonstrativos.
-function getAllDemonstrativos() {
+/**
+ * Pega todas as despesas da base
+ * @returns {Promise} Uma Promise com um array de demontratativos
+ */
+function getAllDespesas() {
     return new Promise((resolve, reject) => {
         banco.sequelize.query('select ate.dt_atendimento, cd.ds_credenciado, pr.ds_procedimento, pr.vl_procedimento ' +
             'from atendimento ate ' +
@@ -44,8 +47,12 @@ function getAllDemonstrativos() {
     })
 }
 
-// Função para executar a query que traz o demonstrativo por filtrado por id.
-function getDemonstrativosById(id) {
+/**
+ * Pega a desoesa do beneficiário dono do Id passado
+ * @param {string} id Id do beneficiário
+ * @returns {Promise} Uma Promise com um array de demontratativos
+ */
+function getDespesasById(id) {
     return new Promise((resolve, reject) => {
         banco.sequelize.query('select ate.dt_atendimento, cd.ds_credenciado, pr.ds_procedimento, pr.vl_procedimento ' +
             'from atendimento ate ' +
