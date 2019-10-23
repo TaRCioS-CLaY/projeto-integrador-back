@@ -18,7 +18,7 @@ const loadModels = (sequelize) => {
 
 /**
  * Cria a conexão com o banco de dados.
- * @returns Um objeto que contem a conexão "sequelize", a classe "Sequelize", e os modelos "models"
+ * @returns {{Sequelize, sequelize, models}}Um objeto que contem a conexão "sequelize", a classe "Sequelize", e os modelos "models"
  */
 const conexao = () =>{
     if (!database) {

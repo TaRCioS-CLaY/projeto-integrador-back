@@ -33,7 +33,7 @@ routes.get('/beneficiarios', async (req, res) => res.json(await Beneficiario.fin
 
 /**
  * Pega todas as despesas da base
- * @returns {Promise} Uma Promise com um array de demontratativos
+ * @returns {Promise<[{}]>} Uma Promise com um array de demontratativos
  */
 function getAllDespesas() {
     return new Promise((resolve, reject) => {
@@ -50,7 +50,7 @@ function getAllDespesas() {
 /**
  * Pega a desoesa do beneficiário dono do Id passado
  * @param {string} id Id do beneficiário
- * @returns {Promise} Uma Promise com um array de demontratativos
+ * @returns {Promise<[{}]>} Uma Promise com um array de demontratativos
  */
 function getDespesasById(id) {
     return new Promise((resolve, reject) => {
