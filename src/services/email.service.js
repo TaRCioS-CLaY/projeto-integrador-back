@@ -10,7 +10,11 @@ const Agendamento = modelos.agendamento;
 export const monitorarbanco = () =>{
     setInterval(()=> {
     getAllAgendamentos().then((dados)=> {
-        verificaAgendamentos(dados)
+        const agendamentos = verificaAgendamentos(dados);
+        if (!agendamentos.length) {
+           return console.log('sem agendamentos ', agendamentos)
+        }
+        console.log('Agendamentos ', agendamentos);
     });
     }
     , 10000);
@@ -28,15 +32,8 @@ const getAllAgendamentos = async () => await Agendamento.findAll();
  * @param {[]} agendamentos Array de agendamento a ser verificado
  * @returns {[]} Retorna um array com todos os agendamentos que estão com a flag de notificação como falsa no banco
  */
-const verificaAgendamentos = (agendamentos) => {
-    const emailsParaEnviar = agendamentos.map((agendamento) => {
-        if (agendamento.vl_push_notificacao === 't'){
-            return;
-        }
-        return agendamento;
-    });
-    return emailsParaEnviar;
-}
+const verificaAgendamentos = (agendamentos) =>
+    agendamentos.filter((agendamento) => (agendamento.vl_push_notificacao === 'f'));
 
 const enviarEmail = () => todo; //todo
 
