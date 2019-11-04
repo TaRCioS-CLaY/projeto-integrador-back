@@ -1,12 +1,13 @@
 import conexao from './../database/conexao';
-import { enviarEmail } from './mailjet.api.service';
-// import sendemail from 'sendemail';
-// const Sendmail = sendemail;
+import enviarEmail from './mailjet.api.service';
+import schedule from 'node-schedule';
+import moment from 'moment';
+import gerarPdf from './pdftemplates.service';
+
 const banco = conexao();
 const modelos = banco.models;
 const Agendamento = modelos.agendamento;
 const Beneficiario = modelos.beneficiario;
-
 
 /**
  * Monitora o banco a procura de novos agendamentos
@@ -15,7 +16,7 @@ export const monitorarbanco = () => {
   setInterval(() => {
     let beneficiarios;
     getAllBeneficiarios().then((dados) => beneficiarios = dados);
-    
+
     getAllAgendamentos().then((dados) => {
       const agendamentos = verificaAgendamentos(dados);
       if (!agendamentos.length) {
@@ -30,18 +31,20 @@ export const monitorarbanco = () => {
         //   )
         enviarEmail(
         'email', 'Teste',
-        'Testando envio de email',
-         'Testando essa bagaça'
+        'Agendamento',
+        `Você possui um agendamento para o dia ${agendamento.dt_agenda} as ${agendamento.hr_inicio}`
          )
-          .then(() => alteraFlagNotificationNoBanco(agendamento));
-        alteraFlagNotificationNoBanco(agendamento);
+          .then(() => alteraFlagNotificationNoBanco(agendamento)).catch(e => console.log('Erro ', e) );
+          console.log('Email enviado teoricamente')
       })
-      console.log('Email enviado teoricamente')
       // console.log('Agendamentos ', agendamentos);
     });
   }
     , 10000);
 }
+
+
+
 /**
  * Fim  do monitoramento
  */

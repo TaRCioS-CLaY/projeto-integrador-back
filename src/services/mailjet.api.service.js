@@ -1,6 +1,6 @@
 const mailjet = require('node-mailjet')
     .connect('apiKey', 'apiSecret');
-    
+
 /**
  * Envia um email utilizando a Api do Mailjet
  * @param {string} destinatarioEmail Email do Destinatario
@@ -43,3 +43,4 @@ const enviarEmail = (destinatarioEmail, destinatarioNome, assunto, corpo, remete
         })
 
 }
+export default enviarEmail;
