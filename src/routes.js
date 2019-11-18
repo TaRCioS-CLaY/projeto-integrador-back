@@ -52,13 +52,27 @@ function getAllDespesas() {
  * @param {string} id Id do beneficiário
  * @returns {Promise<[{}]>} Uma Promise com um array de demontratativos
  */
-function getDespesasById(id) {
+export function getDespesasById(id) {
     return new Promise((resolve, reject) => {
         banco.sequelize.query('select ate.dt_atendimento, cd.ds_credenciado, pr.ds_procedimento, pr.vl_procedimento ' +
             'from atendimento ate ' +
             'left join procedimento pr on ate.cd_procedimento = pr.cd_procedimento ' +
             'left join credenciado cd on ate.cd_credenciado = cd.cd_credenciado ' +
             'where ate.nr_matricula = ' + id + ';'
+        )
+            .then(([results, metadata]) => resolve(results))
+            .catch((err) => reject(err));
+    })
+}
+export function getAtendimentosByIdCredenciado(id) {
+    return new Promise((resolve, reject) => {
+        banco.sequelize.query(
+            
+            'select ate.dt_atendimento, cd.ds_credenciado, pr.ds_procedimento, pr.vl_procedimento ' +
+            'from atendimento ate' +
+            'left join procedimento pr on ate.cd_procedimento = pr.cd_procedimento ' + 
+            'left join credenciado cd on ate.cd_credenciado = cd.cd_credenciado ' + 
+            'where ate.cd_credenciado = ' + id +';'
         )
             .then(([results, metadata]) => resolve(results))
             .catch((err) => reject(err));

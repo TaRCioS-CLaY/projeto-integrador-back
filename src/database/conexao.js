@@ -39,7 +39,7 @@ const conexao = () =>{
      const sequelize = new Sequelize(
       "projeto_integrador",
       "root",
-      "root",
+      "",
       {
          host: 'localhost',
          dialect: 'mysql',

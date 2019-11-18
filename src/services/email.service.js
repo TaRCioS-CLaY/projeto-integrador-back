@@ -3,6 +3,7 @@ import enviarEmail from './mailjet.api.service';
 import schedule from 'node-schedule';
 import moment from 'moment';
 import gerarPdf from './pdftemplates.service';
+import { getDespesasById } from '../routes';
 
 const banco = conexao();
 const modelos = banco.models;
@@ -12,7 +13,7 @@ const Beneficiario = modelos.beneficiario;
 /**
  * Monitora o banco a procura de novos agendamentos
  */
-export const monitorarbanco = () => {
+export const monitorarbanco = async () => {
   setInterval(() => {
     let beneficiarios;
     getAllBeneficiarios().then((dados) => beneficiarios = dados);
@@ -20,21 +21,28 @@ export const monitorarbanco = () => {
     getAllAgendamentos().then((dados) => {
       const agendamentos = verificaAgendamentos(dados);
       if (!agendamentos.length) {
-        return console.log('sem agendamentos ', agendamentos)
+        return console.log('sem agendamentos ', agendamentos);
       }
-      agendamentos.forEach((agendamento) => {
-        const email = pegarEmail(beneficiarios, agendamento.nr_matricula)
+      agendamentos.forEach(async (agendamento) => {
+        const email = pegarEmail(beneficiarios, agendamento.nr_matricula);
+        const beneficiario = beneficiarios.find((e) => e.nr_matricula === agendamento.nr_matricula);
+        const despesas = await getDespesasById(beneficiario.nr_matricula);
+        console.log('Despesas: ', despesas);
+        if(despesas.length > 0){gerarPdf(beneficiario, despesas); }
+        
+        console.log('Gerou o pdf');
+        
         // enviarEmail(
         //  'email, 'Teste',
         //  'Testando envio de email',
         //   'Testando essa bagaça'
         //   )
-        enviarEmail(
-        'email', 'Teste',
-        'Agendamento',
-        `Você possui um agendamento para o dia ${agendamento.dt_agenda} as ${agendamento.hr_inicio}`
-         )
-          .then(() => alteraFlagNotificationNoBanco(agendamento)).catch(e => console.log('Erro ', e) );
+        // enviarEmail(
+        // beneficiario.ds_email, beneficiario.nm_beneficiario,
+        // 'Agendamento',
+        // `${beneficiario.nm_beneficiario} você possui um agendamento para o dia ${moment(agendamento.dt_agenda).format('DD/MM/YYYY')} as ${agendamento.hr_inicio}`
+        //  )
+        //   .then(() => alteraFlagNotificationNoBanco(agendamento)).catch(e => console.log('Erro ', e) );
           console.log('Email enviado teoricamente')
       })
       // console.log('Agendamentos ', agendamentos);
@@ -97,3 +105,6 @@ const pegarEmail = (beneficiarios, matricula) => {
   const beneficiario = beneficiarios.find((pessoa) => pessoa.nr_matricula == matricula)
   return beneficiario.ds_email;
 };
+
+
+// Query da atendimentos por medico select ate.dt_atendimento, cd.ds_credenciado, pr.ds_procedimento, pr.vl_procedimento from atendimento ate left join procedimento pr on ate.cd_procedimento = pr.cd_procedimento left join credenciado cd on ate.cd_credenciado = cd.cd_credenciado where ate.cd_credenciado = 1;
