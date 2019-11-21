@@ -4,6 +4,12 @@ import path from 'path';
 
 let database = null;
 
+const databaseSchema = process.env.DATABASESCHEMA || 'projeto_integrador';
+const hostname = process.env.HOSTNAME || 'localhost';
+const user = process.env.USER || 'root';
+const password = process.env.PASSWORD || '';
+const portDB = process.env.PORTDB || 3306;
+
 // Busca todos os modelos e coloca na variavel models
 const loadModels = (sequelize) => {
     const dir = path.join(__dirname, '../../models');
@@ -22,7 +28,7 @@ const loadModels = (sequelize) => {
  */
 const conexao = () =>{
     if (!database) {
-      //produção
+      //Banco Geral
     //   const sequelize = new Sequelize(
     //   "projeto_integrador",
     //   "root",
@@ -35,13 +41,13 @@ const conexao = () =>{
         //    raw: true
         // }
     //  });
-     //local
-     const sequelize = new Sequelize(
-      "projeto_integrador",
-      "root",
-      "",
+    const sequelize = new Sequelize(
+      databaseSchema,
+      user,
+      password,
       {
-         host: 'localhost',
+         host: hostname,
+         port: portDB,
          dialect: 'mysql',
          define: {
            timestamps: false,

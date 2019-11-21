@@ -1,37 +1,61 @@
 import conexao from './../database/conexao';
 import enviarEmail from './mailjet.api.service';
 import schedule from 'node-schedule';
+import fs from 'fs';
 import moment from 'moment';
-import gerarPdf from './pdftemplates.service';
-import { getDespesasById } from '../routes';
+import { gerarPdfBeneficiario, gerarPdfCredenciado } from './pdftemplates.service';
+import { getDespesasById, getAtendimentosByIdCredenciado } from '../routes';
 
 const banco = conexao();
 const modelos = banco.models;
 const Agendamento = modelos.agendamento;
+const Atendimento = modelos.atendimento;
 const Beneficiario = modelos.beneficiario;
+const Credenciado = modelos.credenciado;
 
 /**
  * Monitora o banco a procura de novos agendamentos
  */
 export const monitorarbanco = async () => {
   setInterval(() => {
-    let beneficiarios;
-    getAllBeneficiarios().then((dados) => beneficiarios = dados);
-
     getAllAgendamentos().then((dados) => {
       const agendamentos = verificaAgendamentos(dados);
       if (!agendamentos.length) {
         return console.log('sem agendamentos ', agendamentos);
       }
-      agendamentos.forEach(async (agendamento) => {
+      emailsDespesas(agendamentos);
+    });
+  }, 10000);
+}
+
+const emailsDespesas = (agendamentos) => {
+  getAllAgendamentos().then((dados) => {
+    const agendamentos = verificaAgendamentos(dados);
+    getAllBeneficiarios().then((beneficiarios) => {
+      agendamentos.forEach((agendamento) => {
         const email = pegarEmail(beneficiarios, agendamento.nr_matricula);
         const beneficiario = beneficiarios.find((e) => e.nr_matricula === agendamento.nr_matricula);
-        const despesas = await getDespesasById(beneficiario.nr_matricula);
-        console.log('Despesas: ', despesas);
-        if(despesas.length > 0){gerarPdf(beneficiario, despesas); }
-        
-        console.log('Gerou o pdf');
-        
+        getDespesasById(beneficiario.nr_matricula).then((despesas) => {
+          if (!despesas.length) {
+            console.log('entrou aki');
+            return;
+          }
+          console.log('Fora aki');
+          gerarPdfBeneficiario(beneficiario, despesas);
+
+          fs.readdir('./src/pdfs', function (err, files) {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            console.log('Arquivos: ', files);
+          });
+
+          fs.unlinkSync(`./src/pdfs/despesasmedicas${beneficiario.nr_matricula}.pdf`);
+        })
+          .catch((err) => console.error('Erro: ', err));
+
+
         // enviarEmail(
         //  'email, 'Teste',
         //  'Testando envio de email',
@@ -43,14 +67,48 @@ export const monitorarbanco = async () => {
         // `${beneficiario.nm_beneficiario} você possui um agendamento para o dia ${moment(agendamento.dt_agenda).format('DD/MM/YYYY')} as ${agendamento.hr_inicio}`
         //  )
         //   .then(() => alteraFlagNotificationNoBanco(agendamento)).catch(e => console.log('Erro ', e) );
-          console.log('Email enviado teoricamente')
       })
-      // console.log('Agendamentos ', agendamentos);
     });
-  }
-    , 10000);
+  });
 }
 
+export const enviarRelatorios = () => {
+  let dataInicio = moment()
+  let enviarRelatorios = true;
+  setInterval(() => {
+    let dataAtual = moment()
+    if (dataAtual.isAfter(dataInicio) || enviarRelatorios) {
+      if (moment().format('DD/MM/YYYY') == moment().date(20).format('DD/MM/YYYY')) {
+        getAllCredenciados().then((credenciados) => {
+          credenciados.forEach((credenciado) => {
+            getAtendimentosByIdCredenciado(credenciado.cd_credenciado).then((atendimentos) => {
+              if (!atendimentos.length) {
+                return;
+              }
+              gerarPdfCredenciado(credenciado, atendimentos)
+
+              fs.readdir('./src/pdfs', function (err, files) {
+                if (err) {
+                  console.log(err);
+                  return;
+                }
+                console.log('Arquivos: ', files);
+              });
+
+              fs.unlinkSync(`./src/pdfs/atendimentos${credenciado.cd_credenciado}.pdf`);
+            })
+            .catch((err) => console.error('Erro: ', err));
+          });
+        });
+
+
+
+
+      }
+    }
+
+  }, 10000);
+}
 
 
 /**
@@ -74,6 +132,12 @@ const verificaAgendamentos = (agendamentos) =>
   agendamentos.filter((agendamento) => (agendamento.vl_push_notificacao === 'f'));
 
 /**
+ * Recupera todos os atendimentos do banco
+ * @returns {Promise<[{}]>} Retorna um array com todos os atendimentos
+ */
+const getAllAtendimentos = async () => await Atendimento.findAll();
+
+/**
  * Recebe um agendamento e altera o valor da notificação no banco
  * @param {{}} agendamento Agendamento que vai sofrer o update
  * @returns {boolean} Retorna true caso dê tudo certo ou false caso dê errado
@@ -94,6 +158,18 @@ const alteraFlagNotificationNoBanco = (agendamento) =>
  * @returns {Promise<[{}]>} Retorna um array com todos os beneficiarios
  */
 const getAllBeneficiarios = async () => await Beneficiario.findAll();
+
+/**
+ * Recupera todos os credenciados do banco
+ * @returns {Promise<[{}]>} Retorna um array com todos os credenciados
+ */
+export function getAllCredenciados() {
+  return new Promise((resolve, reject) => {
+    banco.sequelize.query('select cr.*, es.ds_especialidade from credenciado cr join especialidade es on cr.cd_especialidade = es.cd_especialidade;')
+      .then(([results, metadata]) => resolve(results))
+      .catch((err) => reject(err));
+  })
+}
 
 /**
  * Pega o email da matricula passada

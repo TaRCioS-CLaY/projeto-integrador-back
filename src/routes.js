@@ -67,11 +67,10 @@ export function getDespesasById(id) {
 export function getAtendimentosByIdCredenciado(id) {
     return new Promise((resolve, reject) => {
         banco.sequelize.query(
-            
-            'select ate.dt_atendimento, cd.ds_credenciado, pr.ds_procedimento, pr.vl_procedimento ' +
-            'from atendimento ate' +
+            'select ate.dt_atendimento, be.nm_beneficiario, pr.ds_procedimento, pr.vl_procedimento ' +
+            'from atendimento ate ' +
             'left join procedimento pr on ate.cd_procedimento = pr.cd_procedimento ' + 
-            'left join credenciado cd on ate.cd_credenciado = cd.cd_credenciado ' + 
+            'left join beneficiario be on ate.nr_matricula = be.nr_matricula ' + 
             'where ate.cd_credenciado = ' + id +';'
         )
             .then(([results, metadata]) => resolve(results))

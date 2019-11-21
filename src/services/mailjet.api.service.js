@@ -11,7 +11,7 @@ const mailjet = require('node-mailjet')
  * @param {string} [remetenteNome='Clayton'] Opcional
  * @returns {Promise} Um log do resultado
  */
-const enviarEmail = (destinatarioEmail, destinatarioNome, assunto, corpo, remetenteEmail = 'email', remetenteNome = 'nome') => {
+const enviarEmail = (destinatarioEmail, destinatarioNome, assunto, corpo, remetenteEmail = 'email', remetenteNome = 'nome', pdf = null) => {
     const request = mailjet
         .post("send", { 'version': 'v3.1' })
         .request({
@@ -28,9 +28,16 @@ const enviarEmail = (destinatarioEmail, destinatarioNome, assunto, corpo, remete
                         }
                     ],
                     "Subject": assunto,
-                    "TextPart": "Meu primeiro email",
+                    "TextPart": "Projeto Integrador",
                     "HTMLPart": `${corpo}`,
-                    "CustomID": "Projeto Integrador"
+                    "CustomID": "Projeto Integrador",
+                    "Attachments": [
+                        {
+                          'ContentType': "application/pdf",
+                          'Filename': pdf,
+                          'Base64Content':  $pdfBase64,
+                        }
+                      ],
                 }
             ]
         });
