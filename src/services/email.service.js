@@ -51,7 +51,7 @@ const emailsDespesas = (agendamentos) => {
             console.log('Arquivos: ', files);
           });
 
-          //fs.unlinkSync(`./src/pdfs/despesasmedicas${beneficiario.nr_matricula}.pdf`);
+          fs.unlinkSync(`./src/pdfs/despesasmedicas${beneficiario.nr_matricula}.pdf`);
         })
           .catch((err) => console.error('Erro: ', err));
 
