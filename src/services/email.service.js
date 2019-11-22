@@ -43,15 +43,6 @@ const emailsDespesas = (agendamentos) => {
           console.log('Fora aki');
           gerarPdfBeneficiario(beneficiario, despesas);
 
-          fs.readdir('./src/pdfs', function (err, files) {
-            if (err) {
-              console.log(err);
-              return;
-            }
-            console.log('Arquivos: ', files);
-          });
-
-          //fs.unlinkSync(`./src/pdfs/despesasmedicas${beneficiario.nr_matricula}.pdf`);
         })
           .catch((err) => console.error('Erro: ', err));
 
@@ -87,15 +78,6 @@ export const enviarRelatorios = () => {
               }
               gerarPdfCredenciado(credenciado, atendimentos)
 
-              fs.readdir('./src/pdfs', function (err, files) {
-                if (err) {
-                  console.log(err);
-                  return;
-                }
-                console.log('Arquivos: ', files);
-              });
-
-              fs.unlinkSync(`./src/pdfs/atendimentos${credenciado.cd_credenciado}.pdf`);
             })
             .catch((err) => console.error('Erro: ', err));
           });
