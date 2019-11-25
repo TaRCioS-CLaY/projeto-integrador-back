@@ -4,7 +4,7 @@ import fs from 'fs';
 import moment from 'moment';
 import { gerarPdfBeneficiario, gerarPdfCredenciado } from './pdftemplates.service';
 import { getDespesasById, getAtendimentosByIdCredenciado } from '../routes';
-
+//Teste deploy
 const emailVar = process.env.EMAILVAR;
 
 const banco = conexao();
