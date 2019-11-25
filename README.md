@@ -3,7 +3,7 @@
 1. Clone este repositório
 2. Execute ``yarn install`` dentro da pasta clonada e aguarde a instalação das dependências
 3. Execute ``yarn start`` para levantar o servidor
-4. Abra o navegador e acesse http://localhost:3333
+4. Abra o navegador e acesse http://localhost:3000
 
 
 ## Endpoints
