@@ -5,11 +5,14 @@ import moment from 'moment';
 import { gerarPdfBeneficiario, gerarPdfCredenciado } from './pdftemplates.service';
 import { getDespesasById, getAtendimentosByIdCredenciado } from '../routes';
 
+const emailVar = process.env.EMAILVAR;
+
 const banco = conexao();
 const modelos = banco.models;
 const Agendamento = modelos.agendamento;
 const Atendimento = modelos.atendimento;
 const Beneficiario = modelos.beneficiario;
+const Funcionario = modelos.funcionario;
 
 /**
  * Monitora o banco a procura de novos agendamentos
@@ -32,9 +35,10 @@ export const monitorarRelatorios = () => {
   setInterval(() => {
     let dataAtual = moment()
     if (dataAtual.isAfter(dataInicio) || enviarRelatorios) {
-      if (moment().format('DD/MM/YYYY') == moment().date(23).format('DD/MM/YYYY')) {
+      if (moment().format('DD/MM/YYYY') == moment().date(25).format('DD/MM/YYYY')) {
         relatoriosCredenciados();
         relatoriosBeneficiarios();
+        relatoriosFuncionarios();
       }
     }
   }, 10000);
@@ -100,6 +104,12 @@ export function getAllCredenciados() {
 }
 
 /**
+ * Recupera todos os beneficiarios do banco
+ * @returns {Promise<[{}]>} Retorna um array com todos os beneficiarios
+ */
+const getAllFuncionarios = async () => await Funcionario.findAll();
+
+/**
  * Pega o email da matricula passada
  * @param {[]} beneficiarios Array de beneficiarios
  * @param {string} matricula Matricula a ser encontrada no array
@@ -119,7 +129,7 @@ const relatoriosCredenciados = () => {
         }
         const pdfBase64 = await gerarPdfCredenciado(credenciado, atendimentos)
         enviarEmail(
-          // beneficiario.ds_email, beneficiario.nm_beneficiario,
+          // credenciado.ds_email, credenciado.ds_credenciado,
           'tarcios.clay@gmail.com', credenciado.ds_credenciado,
           ` Credenciado - Relatório de ${moment().locale('pt-br').format('MMMM')}`,
           `${credenciado.ds_credenciado}, estão suas consultas realizadas esse mês.`,
@@ -185,4 +195,18 @@ const emailsAgendamentos = (agendamentos) => {
     .catch((err) => console.error('Erro: ', err));
 }
 
-// Query da atendimentos por medico select ate.dt_atendimento, cd.ds_credenciado, pr.ds_procedimento, pr.vl_procedimento from atendimento ate left join procedimento pr on ate.cd_procedimento = pr.cd_procedimento left join credenciado cd on ate.cd_credenciado = cd.cd_credenciado where ate.cd_credenciado = 1;
+const relatoriosFuncionarios = () => {
+  getAllFuncionarios().then((funcionarios) => {
+    funcionarios.forEach((funcionario) => {
+        enviarEmail(
+          // beneficiario.ds_email, funcionario.nm_usuario,
+          'tarcios.clay@gmail.com', funcionario.nm_usuario,
+          ` Funcionario - Relatório de ${moment().locale('pt-br').format('MMMM')}`,
+          `${funcionario.nm_usuario}, os relatórios de despesas já estao disponiveis\h Acesse: https://projetointegrador.netlify.com/ para gerar os relatórios`,
+          'tarcios.clay@gmail.com',
+          'Clayton'
+        )
+          .catch(e => console.log('Erro ', e));
+      })
+    })
+  }

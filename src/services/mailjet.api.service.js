@@ -3,7 +3,7 @@ const pdf2base64 = require('pdf-to-base64');
 const apikey = process.env.MAILJETKEY;
 const apiSecret = process.env.MAILJETSECRET;
 const mailjet = require('node-mailjet')
-    .connect('ea97a87db1f29295a3c637eb03455d8f', '30a71e58a1f0a180815636fb29903c52');
+    .connect(apikey, apiSecret);
 // .connect('apiKey', 'apiSecret');
 
 /**
